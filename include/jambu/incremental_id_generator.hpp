@@ -8,8 +8,13 @@ namespace jambu {
 template <typename T>
 class incremental_id_generator {
  public:
-  incremental_id_generator(const std::string& file, const T& id = T{})
-      : file_{file}, start_value_{id} {}
+  incremental_id_generator()
+      : file_{}, start_value_{} {}
+
+  void set_attributes(const std::string& filename, const T& init = T{}) {
+    file_ = filename;
+    start_value_ = init;
+  }
 
   auto next_id() {
     auto value{start_value_};
@@ -33,8 +38,8 @@ class incremental_id_generator {
   }
 
  private:
-  const std::string file_;
-  const T start_value_;
+  std::string file_;
+  T start_value_;
 };
 
 // global incremental id generator is just a singleton wrapper

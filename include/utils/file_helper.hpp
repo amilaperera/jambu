@@ -1,4 +1,5 @@
 #include <filesystem>
+#include "../jambu/exception.hpp"
 #include <fstream>
 #include <string>
 
@@ -10,7 +11,11 @@ using record_index_type = size_t;
 
 class file_helper {
  public:
-  explicit file_helper(const std::string& file) : file_{file}, stream_{} {}
+  explicit file_helper(const std::string& file) : file_{file}, stream_{} {
+    if (file_.empty()) {
+      throw jambu_ex("empty filename");
+    }
+  }
 
   file_open_status create_or_open() {
     file_open_status status{file_open_status::opened};
@@ -43,6 +48,7 @@ class file_helper {
     this->write(value);
   }
 
+ private:
   template <typename T>
   void read(T& value) {
     stream_.read(reinterpret_cast<char*>(&value), sizeof(T));
@@ -53,7 +59,6 @@ class file_helper {
     stream_.write(reinterpret_cast<const char*>(&value), sizeof(T));
   }
 
- private:
   const std::string file_;
   std::fstream stream_;
 };
