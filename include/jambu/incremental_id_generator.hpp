@@ -6,13 +6,13 @@
 namespace jambu {
 
 // incremental id generator
-template <typename T, typename Mutex>
+template <typename T, typename Mutex = std::mutex>
 class incremental_id_generator {
  public:
   using type = T;
   using mutex_type = Mutex;
 
-  incremental_id_generator() : file_{}, start_value_{} {}
+  incremental_id_generator() : start_value_{} {}
 
   void set_attributes(const std::string& filename, const T& init = T{}) {
     std::lock_guard<Mutex> l{mutex_};
@@ -42,8 +42,8 @@ class incremental_id_generator {
   }
 
  private:
-  std::string file_;
   T start_value_;
+  std::string file_;
   Mutex mutex_;
 };
 
