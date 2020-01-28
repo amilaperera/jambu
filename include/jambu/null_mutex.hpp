@@ -1,9 +1,5 @@
-#include <iostream>
+#include "../utils/os.hpp"
+
 namespace jambu {
-namespace detail {
-struct null_mutex {
-  void lock() {}
-  void unlock() {}
-};
+  using null_mutex = detail::null_mutex;
 }
-}  // namespace jambu

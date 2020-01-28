@@ -9,9 +9,9 @@ enum class file_open_status { created, opened, error };
 
 using record_index_type = size_t;
 
-class file_helper {
+class record_based_file_helper {
  public:
-  explicit file_helper(const std::string& file) : file_{file}, stream_{} {
+  explicit record_based_file_helper(const std::string& file) : file_{file}, stream_{} {
     if (file_.empty()) {
       throw jambu_ex("empty filename");
     }
@@ -33,7 +33,7 @@ class file_helper {
   }
 
   template <typename T>
-  void read_record_n(record_index_type n, T& value) {
+  void read_record(record_index_type n, T& value) {
     // TODO: overflow detection ?
     std::ios::off_type offset = n * sizeof(T);
     stream_.seekg(offset, std::ios::beg);
@@ -41,7 +41,7 @@ class file_helper {
   }
 
   template <typename T>
-  void write_record_n(record_index_type n, const T& value) {
+  void write_record(record_index_type n, const T& value) {
     // TODO: overflow detection ?
     std::ios::off_type offset = n * sizeof(T);
     stream_.seekp(offset, std::ios::beg);

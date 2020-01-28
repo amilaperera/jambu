@@ -1,6 +1,6 @@
 #include <mutex>
 #include <string>
-#include "../utils/file_helper.hpp"
+#include "../utils/record_based_file_helper.hpp"
 #include "../utils/singleton.hpp"
 
 namespace jambu {
@@ -23,7 +23,7 @@ class incremental_id_generator {
   auto next_id() {
     std::lock_guard<Mutex> l{mutex_};
     auto value{start_value_};
-    detail::file_helper fh{file_};
+    detail::record_based_file_helper fh{file_};
     auto status = fh.create_or_open();
     if (status == detail::file_open_status::error) {
       throw;
@@ -31,12 +31,12 @@ class incremental_id_generator {
     if (status == detail::file_open_status::opened) {
       // existing file - read the existing value, increment & write back
       T id{};
-      fh.read_record_n(0, id);
-      fh.write_record_n(0, ++id);
+      fh.read_record(0, id);
+      fh.write_record(0, ++id);
       value = id;
     } else {
       // new file - write the initial value
-      fh.write_record_n(0, start_value_);
+      fh.write_record(0, start_value_);
     }
     return value;
   }

@@ -62,3 +62,37 @@ TEST_CASE(
   }
 }
 
+namespace test {
+template<typename T, typename Mutex>
+void run_id_generator(jambu::incremental_id_generator<T, Mutex>& id_generator,
+                      int n) {
+  for (int i = 0; i < n; ++i) {
+    id_generator.next_id();
+  }
+}
+}
+
+TEST_CASE(
+    "incremental id generator benchmarking with mutex", "[incremental_id_generator]") {
+  test::file _{test_filename_1};
+
+  jambu::incremental_id_generator<unsigned int> id_generator;
+  id_generator.set_attributes(test_filename_1, 1'000U);
+  for (int i = 0; i < 10; ++i) {
+    REQUIRE(id_generator.next_id() == i + 1'000);
+  }
+  BENCHMARK("next id incrments - 1") { return test::run_id_generator(id_generator, 1); };
+}
+
+TEST_CASE(
+    "incremental id generator benchmarking with null mutex", "[incremental_id_generator]") {
+  test::file _{test_filename_1};
+
+  jambu::incremental_id_generator<unsigned int, jambu::null_mutex> id_generator;
+  id_generator.set_attributes(test_filename_1, 1'000U);
+  for (int i = 0; i < 10; ++i) {
+    REQUIRE(id_generator.next_id() == i + 1'000);
+  }
+  BENCHMARK("next id incrments - 1") { return test::run_id_generator(id_generator, 1); };
+}
+
