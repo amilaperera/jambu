@@ -62,6 +62,7 @@ TEST_CASE(
   }
 }
 
+#if 0
 namespace test {
 template<typename T, typename Mutex>
 void run_id_generator(jambu::incremental_id_generator<T, Mutex>& id_generator,
@@ -95,4 +96,4 @@ TEST_CASE(
   }
   BENCHMARK("next id incrments - 1") { return test::run_id_generator(id_generator, 1); };
 }
-
+#endif

@@ -9,9 +9,9 @@ enum class file_open_status { created, opened, error };
 
 using record_index_type = size_t;
 
-class record_based_file_helper {
+class record_file {
  public:
-  explicit record_based_file_helper(const std::string& file) : file_{file}, stream_{} {
+  explicit record_file(const std::string& file) : file_{file}, stream_{} {
     if (file_.empty()) {
       throw jambu_ex("empty filename");
     }
