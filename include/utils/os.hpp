@@ -1,3 +1,4 @@
+#pragma once
 namespace jambu {
 namespace detail {
 struct null_mutex {

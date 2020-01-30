@@ -62,6 +62,20 @@ TEST_CASE(
   }
 }
 
+TEST_CASE("global incremental id generation",
+          "[global_incremental_id_generator]") {
+  test::file _{test_filename_1};
+
+  using id_generator = jambu::g_incremental_id_generator<unsigned int>;
+  id_generator::instance().set_attributes(test_filename_1);
+  for (int i = 0; i < 100; ++i) {
+    REQUIRE(id_generator::instance().next_id() == i);
+  }
+  for (int i = 0; i < 100; ++i) {
+    REQUIRE(id_generator::instance().next_id() == i + 100);
+  }
+}
+
 #if 0
 namespace test {
 template<typename T, typename Mutex>

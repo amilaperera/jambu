@@ -1,3 +1,4 @@
+#pragma once
 #include <filesystem>
 #include "../jambu/exception.hpp"
 #include <fstream>
@@ -9,9 +10,9 @@ enum class file_open_status { created, opened, error };
 
 using record_index_type = size_t;
 
-class record_file {
+class record_file_helper {
  public:
-  explicit record_file(const std::string& file) : file_{file}, stream_{} {
+  explicit record_file_helper(const std::string& file) : file_{file}, stream_{} {
     if (file_.empty()) {
       throw jambu_ex("empty filename");
     }
@@ -37,7 +38,7 @@ class record_file {
     // TODO: overflow detection ?
     std::ios::off_type offset = n * sizeof(T);
     stream_.seekg(offset, std::ios::beg);
-    this->read(value);
+    read(value);
   }
 
   template <typename T>
@@ -45,7 +46,7 @@ class record_file {
     // TODO: overflow detection ?
     std::ios::off_type offset = n * sizeof(T);
     stream_.seekp(offset, std::ios::beg);
-    this->write(value);
+    write(value);
   }
 
  private:

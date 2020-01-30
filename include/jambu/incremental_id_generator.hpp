@@ -1,6 +1,7 @@
+#pragma once
 #include <mutex>
 #include <string>
-#include "../utils/record_file.hpp"
+#include "../utils/record_file_helper.hpp"
 #include "../utils/singleton.hpp"
 
 namespace jambu {
@@ -23,20 +24,20 @@ class incremental_id_generator {
   auto next_id() {
     std::lock_guard<Mutex> l{mutex_};
     auto value{start_value_};
-    detail::record_file file{file_};
-    auto status = file.create_or_open();
+    detail::record_file_helper rfh{file_};
+    auto status = rfh.create_or_open();
     if (status == detail::file_open_status::error) {
       throw;
     }
     if (status == detail::file_open_status::opened) {
       // existing file - read the existing value, increment & write back
       T id{};
-      file.read_record(0, id);
-      file.write_record(0, ++id);
+      rfh.read_record(0, id);
+      rfh.write_record(0, ++id);
       value = id;
     } else {
       // new file - write the initial value
-      file.write_record(0, start_value_);
+      rfh.write_record(0, start_value_);
     }
     return value;
   }

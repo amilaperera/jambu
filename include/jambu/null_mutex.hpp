@@ -1,3 +1,4 @@
+#pragma once
 #include "../utils/os.hpp"
 
 namespace jambu {
