@@ -52,5 +52,5 @@ class incremental_id_generator {
 // around incremental id generator.
 template <typename T, typename Mutex = std::mutex>
 struct g_incremental_id_generator
-    : public detail::singleton<incremental_id_generator<T, typename Mutex>> {};
+    : public detail::singleton<incremental_id_generator<T, Mutex>> {};
 }  // namespace jambu

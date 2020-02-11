@@ -4,6 +4,8 @@
 #define CATCH_CONFIG_ENABLE_BENCHMARKING
 
 #include <iostream>
+#include <string>
+
 #include "../include/jambu/incremental_id_generator.hpp"
 #include "../include/jambu/null_mutex.hpp"
 #include "catch.hpp"
@@ -13,14 +15,25 @@ class file {
  public:
   explicit file(const std::string& f) : file_{f} {}
   explicit file(const char* f) : file_{f} {}
-  ~file() { std::remove(file_.c_str()); }
+  ~file() {
+    auto file_name = file_.c_str();
+    if (std::filesystem::exists(file_name))
+      std::filesystem::remove(file_name);
+  }
 
  private:
   const std::string file_;
 };
-}  // namespace test
 
-static constexpr const char* test_filename_1{"C:\\work\\test1.data"};
+#ifdef _WIN32
+const char* homepath() { return getenv("USERPROFILE"); }
+const std::string test_filename() {
+  return std::string(homepath()) + "\\test1.data";
+}
+#elif __linux__
+#endif  // _WIN32
+
+}  // namespace test
 
 TEST_CASE("incremental id generator when file name empty",
           "[incremental_id_generator][construction]") {
@@ -31,19 +44,19 @@ TEST_CASE("incremental id generator when file name empty",
 
 TEST_CASE("incremental id generator when file name is non empty",
           "[incremental_id_generator][construction]") {
-  test::file _{test_filename_1};
+  test::file _{test::test_filename()};
 
   jambu::incremental_id_generator<unsigned int> id_generator;
-  id_generator.set_attributes(test_filename_1);
+  id_generator.set_attributes(test::test_filename());
   REQUIRE_NOTHROW(id_generator.next_id());
 }
 
 TEST_CASE("incremental id generator incrementing values",
           "[incremental_id_generator]") {
-  test::file _{test_filename_1};
+  test::file _{test::test_filename()};
 
   jambu::incremental_id_generator<unsigned int> id_generator;
-  id_generator.set_attributes(test_filename_1);
+  id_generator.set_attributes(test::test_filename());
   for (int i = 0; i < 10'000; ++i) {
     REQUIRE(id_generator.next_id() == i);
   }
@@ -53,10 +66,10 @@ TEST_CASE(
     "incremental id generator incrementing values starting from non default "
     "value",
     "[incremental_id_generator]") {
-  test::file _{test_filename_1};
+  test::file _{test::test_filename()};
 
   jambu::incremental_id_generator<unsigned int> id_generator;
-  id_generator.set_attributes(test_filename_1, 1'000U);
+  id_generator.set_attributes(test::test_filename(), 1'000U);
   for (int i = 0; i < 10'000; ++i) {
     REQUIRE(id_generator.next_id() == i + 1'000);
   }
@@ -64,10 +77,10 @@ TEST_CASE(
 
 TEST_CASE("global incremental id generation",
           "[global_incremental_id_generator]") {
-  test::file _{test_filename_1};
+  test::file _{test::test_filename()};
 
   using id_generator = jambu::g_incremental_id_generator<unsigned int>;
-  id_generator::instance().set_attributes(test_filename_1);
+  id_generator::instance().set_attributes(test::test_filename());
   for (int i = 0; i < 100; ++i) {
     REQUIRE(id_generator::instance().next_id() == i);
   }
