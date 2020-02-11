@@ -89,6 +89,21 @@ TEST_CASE("global incremental id generation",
   }
 }
 
+#include "../include/jambu/record_file.hpp"
+
+JAMBU_RECORD_START(Student)
+  int id;
+  std::string name;
+JAMBU_RECORD_END()
+
+TEST_CASE("record file creation", "[record_file]") {
+  jambu::record_file<Student> s{"ff", 23};
+  Student rec;
+  rec.id = 34;
+  rec.name = "Hi";
+  s.create(rec);
+}
+
 #if 0
 namespace test {
 template<typename T, typename Mutex>
