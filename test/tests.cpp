@@ -94,14 +94,22 @@ TEST_CASE("global incremental id generation",
 JAMBU_RECORD_START(Student)
   int id;
   std::string name;
+  Student(int i, const std::string& st) : id{i}, name{st} {}
 JAMBU_RECORD_END()
 
 TEST_CASE("record file creation", "[record_file]") {
-  jambu::record_file<Student> s{"ff", 23};
-  Student rec;
-  rec.id = 34;
-  rec.name = "Hi";
-  s.create(rec);
+  test::file _{test::test_filename()};
+
+  jambu::incremental_id_generator<unsigned long> id_generator;
+  id_generator.set_attributes(test::test_filename());
+
+  jambu::record_file<Student> s{"ff", 23, &id_generator};
+  REQUIRE(s.create(Student{33, "Francis"}) == 0);
+  REQUIRE(s.create(Student{33, "Francis"}) == 1);
+  REQUIRE(s.create(Student{33, "Francis"}) == 2);
+  REQUIRE(s.create(Student{33, "Francis"}) == 3);
+  REQUIRE(s.create(Student{33, "Francis"}) == 4);
+  REQUIRE(s.create(Student{33, "Francis"}) == 5);
 }
 
 #if 0

@@ -1,4 +1,8 @@
 #include <string>
+#include <mutex>
+
+#include "../utils/os.hpp"
+#include "incremental_id_generator.hpp"
 
 namespace jambu {
 namespace detail {
@@ -19,15 +23,28 @@ struct record_base {
   ;
 
 namespace jambu {
-template <typename T>
+template <typename RecordType>
 class record_file {
  public:
-  explicit record_file(const std::string& file, unsigned long sz)
-      : filename_{file}, size_{sz} {}
-  void create(const T& rec) {}
+  using IdType = unsigned long;
+  using IdGenerator =
+      jambu::incremental_id_generator<IdType>;
+
+  record_file(const std::string& file, unsigned long sz,
+              IdGenerator* id_generator)
+      : filename_{file}, size_{sz}, id_generator_{id_generator} {}
+
+  IdType create(const RecordType& rec) { 
+    std::lock_guard<std::mutex> l{mutex_};
+    auto rec_copy = rec;
+    rec_copy.__jambu_record_id__ = id_generator_->next_id();
+    return rec_copy.__jambu_record_id__;
+  }
 
  private:
   const std::string filename_;
   unsigned long size_;  // size in number of records
+  IdGenerator* id_generator_;
+  std::mutex mutex_;
 };
 }  // namespace jambu
